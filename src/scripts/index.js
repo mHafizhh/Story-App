@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     drawerButton: document.querySelector('#drawer-button'),
     navigationDrawer: document.querySelector('#navigation-drawer'),
   });
+  
   await app.renderPage();
 
   window.addEventListener('hashchange', async () => {

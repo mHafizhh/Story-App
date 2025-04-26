@@ -1,40 +1,73 @@
-import API from '../../data/api';
-import { createItemTemplate } from '../templates/item-template';
+import AuthService from "../../data/auth-service";
+import { getStories } from "../../data/api";
+import { createItemTemplate } from "../templates/item-template";
 
 export default class HomePage {
   async render() {
+    const isLoggedIn = AuthService.isLoggedIn();
+    const userInfo = isLoggedIn ? AuthService.getUserInfo() : null;
+
     return `
       <section class="container">
-        <h1>Daftar Cerita</h1>
-        <div id="story-list" class="grid"></div>
-        <div id="map" style="height: 400px; margin-top: 2rem;"></div>
+        <h1 class="page-title">Dicoding Story</h1>
+        
+        ${
+          isLoggedIn
+            ? `
+            <div class="welcome-card">
+              <h2>Selamat Datang, ${userInfo.name}!</h2>
+              <p>Berikut adalah cerita dari pengguna Dicoding.</p>
+            </div>
+
+            <div id="story-container" class="story-container">
+              <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Mengambil data cerita...</p>
+              </div>
+            </div>
+          `
+            : `
+            <div class="welcome-card">
+              <h2>Selamat Datang di Dicoding Story</h2>
+              <p>Silahkan <a href="#/login">login</a> atau <a href="#/register">register</a> untuk melihat cerita dari pengguna Dicoding.</p>
+            </div>
+          `
+        }
       </section>
     `;
   }
 
   async afterRender() {
-    const stories = await API.getAllStories();
-    console.log('Fetched stories:', stories);
-    const listContainer = document.getElementById('story-list');
+    const isLoggedIn = AuthService.isLoggedIn();
 
-    if (stories.length === 0) {
-      listContainer.innerHTML = '<p>No stories available.</p>';
-      return;
+    if (isLoggedIn) {
+      await this.#fetchStories();
     }
+  }
 
-    stories.forEach((story) => {
-      listContainer.innerHTML += createItemTemplate(story);
-    });
+  async #fetchStories() {
+    const storyContainer = document.getElementById("story-container");
 
-    const map = L.map('map').setView([-2.5, 118], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    try {
+      const response = await getStories();
 
-    stories.forEach((story) => {
-      if (story.lat && story.lon) {
-        L.marker([story.lat, story.lon])
-          .addTo(map)
-          .bindPopup(`<b>${story.name}</b><br>${story.description}`);
+      if (response.error) {
+        storyContainer.innerHTML = `<div class="error-message">${response.message}</div>`;
+        return;
       }
-    });
+
+      const { listStory } = response;
+
+      if (listStory.length === 0) {
+        storyContainer.innerHTML = '<div class="empty-state">Belum ada cerita yang tersedia. Jadilah yang pertama berbagi cerita!</div>';
+        return;
+      }
+
+      const storiesHtml = listStory.map((story) => createItemTemplate(story)).join("");
+      storyContainer.innerHTML = `<div class="story-list">${storiesHtml}</div>`;
+    } catch (error) {
+      console.error(error);
+      storyContainer.innerHTML = `<div class="error-message">Gagal memuat cerita. ${error.message}</div>`;
+    }
   }
 }

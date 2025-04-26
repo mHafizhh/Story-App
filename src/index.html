@@ -11,13 +11,19 @@
   <body>
     <header>
       <div class="main-header container">
-        <a class="brand-name" href="#/">App</a>
+        <a class="brand-name" href="#/">Story App</a>
 
         <nav id="navigation-drawer" class="navigation-drawer">
           <ul id="nav-list" class="nav-list">
             <li><a href="#/">Beranda</a></li>
             <li><a href="#/about">About</a></li>
-            <li><a href="#" id="logout-button" class="nav-link">Logout</a></li>
+            <li class="auth-nav">
+              <a href="#/login" class="login-link">Login</a>
+              <a href="#/register" class="register-link">Register</a>
+              <div class="user-info" style="display: none;">
+                <a href="#" id="logout-button" class="nav-link">Logout</a>
+              </div>
+            </li>
           </ul>
         </nav>
 

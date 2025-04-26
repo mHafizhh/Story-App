@@ -1,38 +1,61 @@
-import CONFIG from '../config';
-import { getToken } from '../utils/auth';
+import CONFIG from "../config";
+import AuthService from "./auth-service";
 
 const ENDPOINTS = {
-  GET_STORIES: `${CONFIG.BASE_URL}/stories`,
+  LOGIN: `${CONFIG.BASE_URL}/login`,
+  REGISTER: `${CONFIG.BASE_URL}/register`,
+  STORIES: `${CONFIG.BASE_URL}/stories`,
 };
 
-export async function getAllStories() {
-  try {
-    const token = getToken(); 
+export async function login(email, password) {
+  const response = await fetch(ENDPOINTS.LOGIN, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
 
-    if (!token) {
-      throw new Error('Token tidak ditemukan. Anda harus login terlebih dahulu.');
-    }
-
-    const response = await fetch(ENDPOINTS.GET_STORIES, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`, 
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Gagal mengambil data cerita');
-    }
-
-    const result = await response.json();
-    return result.listStory; 
-  } catch (error) {
-    console.error('Error fetching stories:', error);
-    return [];
-  }
+  return await response.json();
 }
 
-export default {
-  getAllStories,
-};
+export async function register(name, email, password) {
+  const response = await fetch(ENDPOINTS.REGISTER, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+    }),
+  });
+
+  return await response.json();
+}
+
+export async function getStories({ location = 0 } = {}) {
+  const token = AuthService.getToken();
+
+  if (!token) {
+    throw new Error("Tidak ada token autentikasi");
+  }
+
+  const url = new URL(ENDPOINTS.STORIES);
+
+  if (location) {
+    url.searchParams.append("location", location);
+  }
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return await response.json();
+}

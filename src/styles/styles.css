@@ -884,7 +884,20 @@ textarea:focus {
   gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 20px;
+  margin-bottom: 15px;
+}
+
+.camera-buttons button,
+.camera-buttons label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.camera-buttons i {
+  font-size: 1.1em;
 }
 
 /* Preview image adjustments */
@@ -1015,5 +1028,427 @@ textarea:focus {
     max-width: 95%;
     margin: 20px auto;
     padding: 20px;
+  }
+}
+
+/* New Form Camera Styles */
+.new-form__camera__container {
+  display: none;
+  margin-top: 20px;
+}
+
+.new-form__camera__container.open {
+  display: block;
+}
+
+.new-form__camera__video {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.new-form__camera__canvas {
+  display: none;
+}
+
+.new-form__camera__tools {
+  margin-top: 15px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-form__camera__tools select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--color-primary-light);
+}
+
+/* Documentation Outputs */
+.new-form__documentations__outputs {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.new-form__documentations__outputs-item {
+  position: relative;
+}
+
+.new-form__documentations__outputs-item__delete-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 100%;
+  position: relative;
+}
+
+.new-form__documentations__outputs-item__delete-btn::after {
+  content: '×';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary-dark);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.new-form__documentations__outputs-item__delete-btn:hover::after {
+  opacity: 1;
+}
+
+.new-form__documentations__outputs-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.new-form__documentations__outputs-item__delete-btn:hover img {
+  transform: scale(1.05);
+}
+
+/* Documentation Buttons */
+.new-form__documentations__buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.btn-outline {
+  padding: 12px 24px;
+  background-color: transparent;
+  color: var(--color-primary-dark);
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary-dark);
+  color: white;
+}
+
+/* Location Input Styles */
+.new-form__location__map__container {
+  position: relative;
+}
+
+.new-form__location__lat-lng {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.new-form__location__lat-lng input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid var(--color-primary-light);
+  border-radius: 8px;
+  background-color: var(--color-primary-lightest);
+  font-size: 1rem;
+  color: var(--color-primary-darkest);
+  text-align: center;
+}
+
+.new-form__location__lat-lng input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Form Buttons */
+.form-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.form-buttons .btn-submit {
+  flex: 1;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-button {
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+/* Camera Preview Styles */
+.camera-preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto 20px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.camera-preview {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  transform: scaleX(-1); /* Mirror effect */
+}
+
+.camera-canvas {
+  display: none;
+}
+
+/* Camera Controls */
+.camera-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.camera-select {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  border: 1px solid var(--color-primary-light);
+  border-radius: 8px;
+  background-color: white;
+  color: var(--color-primary-darkest);
+  font-size: 1rem;
+}
+
+.camera-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.camera-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
+  padding: 12px 24px;
+  background-color: transparent;
+  color: var(--color-primary-dark);
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.camera-buttons button:hover {
+  background-color: var(--color-primary-dark);
+  color: white;
+}
+
+.camera-buttons button:active {
+  transform: translateY(1px);
+}
+
+.camera-buttons button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-color: var(--color-primary-light);
+  color: var(--color-primary-light);
+}
+
+.camera-buttons button:disabled:hover {
+  background-color: transparent;
+  color: var(--color-primary-light);
+}
+
+.camera-buttons i {
+  font-size: 1.1em;
+}
+
+/* Photo Preview */
+.photo-preview-container {
+  margin-top: 20px;
+}
+
+.photo-preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.photo-preview-item {
+  position: relative;
+}
+
+.photo-preview-wrapper {
+  position: relative;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.photo-preview-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.photo-preview-wrapper:hover .photo-preview-image {
+  transform: scale(1.05);
+}
+
+.photo-delete-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--color-primary-dark);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.photo-preview-wrapper:hover .photo-delete-button {
+  opacity: 1;
+}
+
+.photo-delete-button:hover {
+  background-color: var(--color-primary-darkest);
+  transform: scale(1.1);
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 576px) {
+  .camera-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .camera-buttons button {
+    width: 100%;
+  }
+
+  .photo-preview-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+/* File Input Styles */
+.file-input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.file-input-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: transparent;
+  color: var(--color-primary-dark);
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-width: 120px;
+}
+
+.file-input-label:hover {
+  background-color: var(--color-primary-dark);
+  color: white;
+}
+
+.file-input-label:active {
+  transform: translateY(1px);
+}
+
+/* Camera Buttons Enhancement */
+.camera-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.camera-buttons button,
+.camera-buttons label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.camera-buttons i {
+  font-size: 1.1em;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 576px) {
+  .camera-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .camera-buttons button,
+  .camera-buttons label {
+    width: 100%;
+  }
+
+  .file-input-label {
+    width: 100%;
+    justify-content: center;
   }
 }

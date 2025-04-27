@@ -3,3 +3,5 @@ const CONFIG = {
 };
 
 export default CONFIG;
+
+export const MAP_SERVICE_API_KEY = 'zeE5eTDAExzRyoGLPytg';

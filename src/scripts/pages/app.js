@@ -11,6 +11,7 @@ class App {
   #registerLink = null;
   #userInfo = null;
   #logoutButton = null;
+  #currentPage = null;
 
   constructor({ navigationDrawer, drawerButton, content, navList }) {
     this.#content = content;
@@ -99,6 +100,14 @@ class App {
   async renderPage() {
     const url = getActiveRoute();
     const page = getPage(url);
+
+    // Cleanup halaman sebelumnya jika ada
+    if (this.#currentPage && typeof this.#currentPage.destroy === 'function') {
+      this.#currentPage.destroy();
+    }
+
+    // Simpan referensi halaman saat ini
+    this.#currentPage = page;
 
     if (document.startViewTransition) {
       document.startViewTransition(async () => {

@@ -9,50 +9,33 @@ export default class AddStoryPresenter {
     this.#model = model;
   }
 
-  async submitStory() {
-    const { description, photoPreview, lat, lon } = this.#view.getFormData();
-
-    if (!description) {
-      this.#view.showError("Deskripsi tidak boleh kosong");
-      return;
-    }
-
-    if (!photoPreview.src || photoPreview.style.display === "none") {
-      this.#view.showError("Harap ambil foto terlebih dahulu");
-      return;
-    }
-
+  async showNewFormMap() {
+    this.#view.showMapLoading();
     try {
-      this.#view.showLoading();
-      this.#view.clearError();
+      await this.#view.initialMap();
+    } catch (error) {
+      console.error('showNewFormMap: error:', error);
+    } finally {
+      this.#view.hideMapLoading();
+    }
+  }
 
-      const photo = await this.#view.getPhotoFile();
-      const result = await this.#model.addStory({
-        description,
-        photo,
-        lat,
-        lon,
-      });
+  async submitStory(data) {
+    this.#view.showSubmitLoadingButton();
+    try {
+      const result = await this.#model.addStory(data);
 
       if (result.error) {
-        this.#view.showError(result.message);
+        this.#view.storeFailed(result.message);
         return;
       }
 
-      showToast("Cerita berhasil ditambahkan!");
-      
-      // Pastikan resources dibersihkan sebelum navigasi
-      this.#view.destroy();
-      
-      // Tunggu sebentar untuk memastikan cleanup selesai
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      window.location.hash = "#/";
+      this.#view.storeSuccessfully(result.message);
     } catch (error) {
-      this.#view.showError("Terjadi kesalahan saat menambahkan cerita");
-      console.error(error);
+      console.error('submitStory: error:', error);
+      this.#view.storeFailed("Terjadi kesalahan saat menambahkan cerita");
     } finally {
-      this.#view.hideLoading();
+      this.#view.hideSubmitLoadingButton();
     }
   }
 

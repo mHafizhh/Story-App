@@ -1,7 +1,8 @@
-import L from 'leaflet';
+import { map, tileLayer, Icon, icon, marker, popup, latLng } from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { MAP_SERVICE_API_KEY } from '../config';
 
 export default class Map {
   #zoom = 13;
@@ -11,9 +12,25 @@ export default class Map {
     return 'geolocation' in navigator;
   }
 
+  static async getPlaceNameByCoordinate(latitude, longitude) {
+    try {
+      const url = new URL(`https://api.maptiler.com/geocoding/${longitude},${latitude}.json`);
+      url.searchParams.set('key', MAP_SERVICE_API_KEY);
+      url.searchParams.set('language', 'id');
+      url.searchParams.set('limit', '1');
+      const response = await fetch(url);
+      const json = await response.json();
+      const place = json.features[0].place_name.split(', ');
+      return [place.at(-2), place.at(-1)].map((name) => name).join(', ');
+    } catch (error) {
+      console.error('getPlaceNameByCoordinate: error:', error);
+      return `${latitude}, ${longitude}`;
+    }
+  }
+
   createIcon(options = {}) {
-    return L.icon({
-      ...L.Icon.Default.prototype.options,
+    return icon({
+      ...Icon.Default.prototype.options,
       iconRetinaUrl: markerIcon2x,
       iconUrl: markerIcon,
       shadowUrl: markerShadow,
@@ -26,7 +43,7 @@ export default class Map {
       throw new Error('markerOptions must be an object');
     }
     
-    const newMarker = L.marker(coordinates, {
+    const newMarker = marker(coordinates, {
       icon: this.createIcon(),
       ...markerOptions,
     });
@@ -38,7 +55,7 @@ export default class Map {
       if (!('content' in popupOptions)) {
         throw new Error('popupOptions must include `content` property.');
       }
-      const newPopup = L.popup(coordinates, popupOptions);
+      const newPopup = popup(coordinates, popupOptions);
       newMarker.bindPopup(newPopup);
     }
     
@@ -91,16 +108,25 @@ export default class Map {
   constructor(selector, options = {}) {
     this.#zoom = options.zoom ?? this.#zoom;
 
-    const tileOsm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const tileOsm = tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
     });
 
-    this.#map = L.map(document.querySelector(selector), {
+    this.#map = map(document.querySelector(selector), {
       zoom: this.#zoom,
-      scrollWheelZoom: true,
+      scrollWheelZoom: false,
       layers: [tileOsm],
       ...options,
     });
+  }
+
+  changeCamera(coordinate, zoomLevel = null) {
+    if (!zoomLevel) {
+      this.#map.setView(latLng(coordinate), this.#zoom);
+      return;
+    }
+    
+    this.#map.setView(latLng(coordinate), zoomLevel);
   }
 
   getCenter() {

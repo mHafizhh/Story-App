@@ -3,23 +3,164 @@ import showToast from "../../utils/toast";
 export default class AddStoryPresenter {
   #view = null;
   #model = null;
+  #state = {
+    isCameraOpen: false,
+    photos: [],
+    map: null,
+    marker: null
+  };
 
   constructor({ view, model }) {
     this.#view = view;
     this.#model = model;
   }
 
+  // Form Handling
+  async handleFormSubmit(formData) {
+    if (!this.#validateForm(formData)) return;
+    await this.submitStory(formData);
+  }
+
+  #validateForm(data) {
+    if (!data.description) {
+      this.#view.showError("Deskripsi tidak boleh kosong");
+      return false;
+    }
+    if (!data.photo) {
+      this.#view.showError("Harap ambil foto terlebih dahulu");
+      return false;
+    }
+    return true;
+  }
+
+  // Map Handling
   async showNewFormMap() {
     this.#view.showMapLoading();
     try {
-      await this.#view.initialMap();
+      const map = await this.#view.initialMap();
+      this.#state.map = map;
+      
+      const centerCoordinate = map.getCenter();
+      this.#initializeMapMarker(centerCoordinate);
+      this.#setupMapEventListeners();
     } catch (error) {
       console.error('showNewFormMap: error:', error);
+      this.#view.showError('Gagal memuat peta');
     } finally {
       this.#view.hideMapLoading();
     }
   }
 
+  #initializeMapMarker(coordinate) {
+    if (!this.#state.map) return;
+
+    this.#state.marker = this.#state.map.addMarker(
+      [coordinate.latitude, coordinate.longitude],
+      { draggable: true }
+    );
+
+    this.#view.updateLatLngInput(coordinate.latitude, coordinate.longitude);
+  }
+
+  #setupMapEventListeners() {
+    if (!this.#state.marker || !this.#state.map) return;
+
+    this.#state.marker.on('dragend', (event) => {
+      const { lat, lng } = event.target.getLatLng();
+      this.#view.updateLatLngInput(lat, lng);
+    });
+
+    this.#state.map.addMapEventListener('click', (event) => {
+      const { lat, lng } = event.latlng;
+      this.#state.marker.setLatLng([lat, lng]);
+      this.#view.updateLatLngInput(lat, lng);
+    });
+  }
+
+  // Camera Handling
+  async handleCameraToggle() {
+    if (!this.#state.isCameraOpen) {
+      await this.startCamera();
+    } else {
+      this.stopCamera();
+    }
+  }
+
+  async startCamera() {
+    try {
+      await this.#view.launchCamera();
+      this.#state.isCameraOpen = true;
+      this.#view.updateCameraUI({
+        isOpen: true,
+        buttonText: '<i class="fas fa-camera"></i> Tutup Kamera',
+        showVideo: true,
+        enableCapture: true
+      });
+    } catch (error) {
+      console.error('Error starting camera:', error);
+      this.#view.showError('Gagal membuka kamera');
+    }
+  }
+
+  stopCamera() {
+    this.#view.stopCamera();
+    this.#state.isCameraOpen = false;
+    this.#view.updateCameraUI({
+      isOpen: false,
+      buttonText: '<i class="fas fa-camera"></i> Buka Kamera',
+      showVideo: false,
+      enableCapture: false
+    });
+  }
+
+  async handleCapturePhoto() {
+    try {
+      const photoBlob = await this.#view.takePicture();
+      if (photoBlob) {
+        await this.addPhoto(photoBlob);
+      }
+    } catch (error) {
+      console.error('Error capturing photo:', error);
+      this.#view.showError('Gagal mengambil foto');
+    }
+  }
+
+  // Photo Handling
+  async handleFileSelect(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.#view.showError('Mohon pilih file gambar yang valid');
+      return;
+    }
+
+    try {
+      await this.addPhoto(file);
+    } catch (error) {
+      console.error('Error adding file:', error);
+      this.#view.showError('Gagal menambahkan foto');
+    }
+  }
+
+  async addPhoto(image) {
+    const newPhoto = {
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      blob: image,
+    };
+    this.#state.photos = [...this.#state.photos, newPhoto];
+    await this.#view.updatePhotoPreview(this.#state.photos);
+  }
+
+  removePhoto(id) {
+    const photo = this.#state.photos.find(p => p.id === id);
+    if (photo?.objectUrl) {
+      URL.revokeObjectURL(photo.objectUrl);
+    }
+    this.#state.photos = this.#state.photos.filter(photo => photo.id !== id);
+    this.#view.updatePhotoPreview(this.#state.photos);
+  }
+
+  // Story Submission
   async submitStory(data) {
     this.#view.showSubmitLoadingButton();
     try {
@@ -39,40 +180,19 @@ export default class AddStoryPresenter {
     }
   }
 
-  async startCamera() {
-    const success = await this.#view.startCameraStream();
-    if (success) {
-      this.#view.updateCameraUI({ showCamera: true });
-    }
-  }
-
-  stopCamera() {
-    // Pastikan stream dibersihkan
-    this.#view.stopCameraStream();
-    
-    // Update UI setelah stream dibersihkan
-    this.#view.updateCameraUI({ showCamera: false, showPreview: false });
-  }
-
-  capturePhoto() {
-    this.#view.capturePhotoFromCamera();
-    this.#view.updateCameraUI({ showPreview: true });
-  }
-
-  retakePhoto() {
-    this.#view.updateCameraUI({ showCamera: true });
-  }
-
-  handleFileSelect(event) {
-    const file = event.target.files[0];
-    
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      this.#view.showError('Mohon pilih file gambar yang valid');
-      return;
-    }
-
-    this.#view.handleFileSelect(file);
+  // Cleanup
+  destroy() {
+    this.stopCamera();
+    this.#state.photos.forEach(photo => {
+      if (photo.objectUrl) {
+        URL.revokeObjectURL(photo.objectUrl);
+      }
+    });
+    this.#state = {
+      isCameraOpen: false,
+      photos: [],
+      map: null,
+      marker: null
+    };
   }
 } 

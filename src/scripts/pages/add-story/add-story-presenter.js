@@ -15,6 +15,11 @@ export default class AddStoryPresenter {
     this.#model = model;
   }
 
+  // Getter untuk photos
+  getPhotos() {
+    return [...this.#state.photos]; // Return copy untuk mencegah mutasi langsung
+  }
+
   // Form Handling
   async handleFormSubmit(formData) {
     if (!this.#validateForm(formData)) return;
@@ -30,6 +35,34 @@ export default class AddStoryPresenter {
       this.#view.showError("Harap ambil foto terlebih dahulu");
       return false;
     }
+
+    // Validasi tipe file
+    if (!data.photo.type.startsWith('image/')) {
+      this.#view.showError("File harus berupa gambar");
+      return false;
+    }
+
+    // Validasi ukuran file (1MB = 1024 * 1024 bytes)
+    if (data.photo.size > 1024 * 1024) {
+      this.#view.showError("Ukuran foto tidak boleh lebih dari 1MB");
+      return false;
+    }
+
+    // Validasi koordinat
+    if (data.lat) {
+      if (isNaN(data.lat) || data.lat < -90 || data.lat > 90) {
+        this.#view.showError("Latitude tidak valid");
+        return false;
+      }
+    }
+
+    if (data.lon) {
+      if (isNaN(data.lon) || data.lon < -180 || data.lon > 180) {
+        this.#view.showError("Longitude tidak valid");
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -164,17 +197,35 @@ export default class AddStoryPresenter {
   async submitStory(data) {
     this.#view.showSubmitLoadingButton();
     try {
-      const result = await this.#model.addStory(data);
+      // Format data sesuai API
+      const storyData = {
+        description: data.description,
+        photo: data.photo,
+        lat: data.lat || undefined,
+        lon: data.lon || undefined
+      };
+
+      const result = await this.#model.addStory(storyData);
 
       if (result.error) {
         this.#view.storeFailed(result.message);
         return;
       }
 
-      this.#view.storeSuccessfully(result.message);
+      this.#view.storeSuccessfully("Cerita berhasil ditambahkan");
     } catch (error) {
       console.error('submitStory: error:', error);
-      this.#view.storeFailed("Terjadi kesalahan saat menambahkan cerita");
+      
+      // Handle specific errors
+      if (error.message.includes("Ukuran foto")) {
+        this.#view.storeFailed(error.message);
+      } else if (error.message.includes("token")) {
+        this.#view.storeFailed("Sesi anda telah berakhir, silakan login kembali");
+        // Redirect ke halaman login
+        window.location.hash = "#/login";
+      } else {
+        this.#view.storeFailed("Terjadi kesalahan saat menambahkan cerita");
+      }
     } finally {
       this.#view.hideSubmitLoadingButton();
     }

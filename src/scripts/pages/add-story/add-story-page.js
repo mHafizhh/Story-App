@@ -175,7 +175,8 @@ export default class AddStoryPage {
   }
 
   #getFirstPhoto() {
-    return this.#presenter.getPhotos()[0];
+    const photos = this.#presenter.getPhotos();
+    return photos && photos.length > 0 ? photos[0] : null;
   }
 
   #setupCamera() {

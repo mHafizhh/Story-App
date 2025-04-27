@@ -60,16 +60,30 @@ export async function getStories({ location = 0 } = {}) {
   return await response.json();
 }
 
-export async function addStory({ description, photo }) {
+export async function addStory({ description, photo, lat, lon }) {
   const token = AuthService.getToken();
 
   if (!token) {
     throw new Error("Tidak ada token autentikasi");
   }
 
+  // Validasi ukuran file (max 1MB)
+  if (photo.size > 1024 * 1024) {
+    throw new Error("Ukuran foto tidak boleh lebih dari 1MB");
+  }
+
   const formData = new FormData();
   formData.append("description", description);
   formData.append("photo", photo);
+  
+  // Append lat & lon jika ada
+  if (typeof lat === 'number' && !isNaN(lat)) {
+    formData.append("lat", lat);
+  }
+  
+  if (typeof lon === 'number' && !isNaN(lon)) {
+    formData.append("lon", lon);
+  }
 
   const response = await fetch(ENDPOINTS.STORIES, {
     method: "POST",
@@ -79,5 +93,12 @@ export async function addStory({ description, photo }) {
     body: formData,
   });
 
-  return await response.json();
+  const responseJson = await response.json();
+
+  // Format response agar konsisten
+  return {
+    error: !response.ok,
+    message: responseJson.message || "Terjadi kesalahan",
+    data: responseJson.story
+  };
 }

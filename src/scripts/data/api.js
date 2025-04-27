@@ -59,3 +59,25 @@ export async function getStories({ location = 0 } = {}) {
 
   return await response.json();
 }
+
+export async function addStory({ description, photo }) {
+  const token = AuthService.getToken();
+
+  if (!token) {
+    throw new Error("Tidak ada token autentikasi");
+  }
+
+  const formData = new FormData();
+  formData.append("description", description);
+  formData.append("photo", photo);
+
+  const response = await fetch(ENDPOINTS.STORIES, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  return await response.json();
+}

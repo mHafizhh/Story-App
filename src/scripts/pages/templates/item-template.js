@@ -1,4 +1,5 @@
 export function createItemTemplate(story) {
+    
     const hasLocation = story.lat && story.lon;
     
     return `

@@ -1,8 +1,11 @@
 import AuthService from "../../data/auth-service";
-import { getStories } from "../../data/api";
 import { createItemTemplate } from "../templates/item-template";
+import HomePresenter from "./home-presenter";
+import * as StoryAPI from "../../data/api";
 
 export default class HomePage {
+  #presenter = null;
+
   async render() {
     const isLoggedIn = AuthService.isLoggedIn();
     const userInfo = isLoggedIn ? AuthService.getUserInfo() : null;
@@ -39,35 +42,60 @@ export default class HomePage {
 
   async afterRender() {
     const isLoggedIn = AuthService.isLoggedIn();
-
+    
     if (isLoggedIn) {
-      await this.#fetchStories();
+      this.#presenter = new HomePresenter({
+        view: this,
+        model: StoryAPI,
+      });
+      
+      // Pastikan container sudah ada sebelum memanggil init
+      const storyContainer = document.getElementById("story-container");
+      if (storyContainer) {
+        await this.#presenter.init();
+      } else {
+        console.error("Story container tidak ditemukan");
+      }
     }
   }
 
-  async #fetchStories() {
+  showLoading() {
     const storyContainer = document.getElementById("story-container");
+    if (!storyContainer) return;
 
-    try {
-      const response = await getStories();
+    storyContainer.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Mengambil data cerita...</p>
+      </div>
+    `;
+  }
 
-      if (response.error) {
-        storyContainer.innerHTML = `<div class="error-message">${response.message}</div>`;
-        return;
-      }
+  hideLoading() {
+    const storyContainer = document.getElementById("story-container");
+    if (!storyContainer) return;
+    
+    // Jangan langsung mengosongkan container
+    // storyContainer.innerHTML = '';
+  }
 
-      const { listStory } = response;
+  showStories(stories) {
+    const storyContainer = document.getElementById("story-container");
+    if (!storyContainer) return;
 
-      if (listStory.length === 0) {
-        storyContainer.innerHTML = '<div class="empty-state">Belum ada cerita yang tersedia. Jadilah yang pertama berbagi cerita!</div>';
-        return;
-      }
-
-      const storiesHtml = listStory.map((story) => createItemTemplate(story)).join("");
-      storyContainer.innerHTML = `<div class="story-list">${storiesHtml}</div>`;
-    } catch (error) {
-      console.error(error);
-      storyContainer.innerHTML = `<div class="error-message">Gagal memuat cerita. ${error.message}</div>`;
+    if (stories.length === 0) {
+      storyContainer.innerHTML = '<div class="empty-state">Belum ada cerita yang tersedia. Jadilah yang pertama berbagi cerita!</div>';
+      return;
     }
+
+    const storiesHtml = stories.map((story) => createItemTemplate(story)).join("");
+    storyContainer.innerHTML = `<div class="story-list">${storiesHtml}</div>`;
+  }
+
+  showError(message) {
+    const storyContainer = document.getElementById("story-container");
+    if (!storyContainer) return;
+    
+    storyContainer.innerHTML = `<div class="error-message">${message}</div>`;
   }
 }

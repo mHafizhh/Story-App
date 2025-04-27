@@ -1,7 +1,9 @@
-import { register } from "../../data/api";
-import showToast from "../../utils/toast";
+import RegisterPresenter from "./register-presenter";
+import * as StoryAPI from "../../data/api";
 
 export default class RegisterPage {
+  #presenter = null;
+
   async render() {
     return `
       <section class="container auth-container">
@@ -37,90 +39,78 @@ export default class RegisterPage {
     `;
   }
 
-  #validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  async afterRender() {
+    this.#presenter = new RegisterPresenter({
+      view: this,
+      model: StoryAPI,
+    });
+
+    this.#initializeForm();
   }
 
-  async afterRender() {
-    const registerForm = document.getElementById("registerForm");
-    const errorContainer = document.getElementById("errorContainer");
+  #initializeForm() {
+    const form = document.getElementById("registerForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    emailInput.addEventListener("input", (event) => {
+      this.#presenter.validateEmail(event.target.value);
+    });
+
+    passwordInput.addEventListener("input", (event) => {
+      this.#presenter.validatePassword(event.target.value);
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await this.#presenter.register();
+    });
+  }
+
+  showEmailValidation(isValid) {
     const emailInput = document.getElementById("email");
     const emailWarning = document.querySelector(".email-warning");
+
+    emailWarning.style.display = isValid ? "none" : "block";
+    emailInput.classList.toggle("invalid", !isValid);
+    emailInput.classList.toggle("valid", isValid);
+  }
+
+  showPasswordValidation(isValid) {
     const passwordInput = document.getElementById("password");
     const passwordWarning = document.querySelector(".password-warning");
-    const submitButton = registerForm.querySelector(".btn-submit");
 
-    // Email validation
-    emailInput.addEventListener("input", (event) => {
-      const email = event.target.value;
-      if (this.#validateEmail(email)) {
-        emailWarning.style.display = "none";
-        emailInput.classList.remove("invalid");
-        emailInput.classList.add("valid");
-      } else {
-        emailWarning.style.display = "block";
-        emailInput.classList.remove("valid");
-        emailInput.classList.add("invalid");
-      }
-    });
+    passwordWarning.style.display = isValid ? "none" : "block";
+    passwordInput.classList.toggle("invalid", !isValid);
+    passwordInput.classList.toggle("valid", isValid);
+  }
 
-    // Password validation
-    passwordInput.addEventListener("input", (event) => {
-      const password = event.target.value;
-      if (password.length >= 8) {
-        passwordWarning.style.display = "none";
-        passwordInput.classList.remove("invalid");
-        passwordInput.classList.add("valid");
-      } else {
-        passwordWarning.style.display = "block";
-        passwordInput.classList.remove("valid");
-        passwordInput.classList.add("invalid");
-      }
-    });
+  getFormData() {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    return { name, email, password };
+  }
 
-    registerForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
+  showError(message) {
+    const errorContainer = document.getElementById("errorContainer");
+    errorContainer.innerHTML = `<p>${message}</p>`;
+  }
 
-      const name = document.getElementById("name").value;
-      const email = emailInput.value;
-      const password = passwordInput.value;
+  clearError() {
+    const errorContainer = document.getElementById("errorContainer");
+    errorContainer.innerHTML = "";
+  }
 
-      // Validasi sebelum submit
-      if (!this.#validateEmail(email)) {
-        errorContainer.innerHTML = "<p>Format email tidak valid</p>";
-        return;
-      }
+  showLoading() {
+    const submitButton = document.querySelector(".btn-submit");
+    submitButton.classList.add("loading");
+    submitButton.disabled = true;
+  }
 
-      if (password.length < 8) {
-        errorContainer.innerHTML = "<p>Password minimal 8 karakter</p>";
-        return;
-      }
-
-      try {
-        // Aktifkan loading state
-        submitButton.classList.add("loading");
-        submitButton.disabled = true;
-        errorContainer.innerHTML = "";
-
-        const response = await register(name, email, password);
-
-        if (response.error) {
-          errorContainer.innerHTML = `<p>${response.message}</p>`;
-          return;
-        }
-
-        // Register sukses, arahkan ke halaman login
-        showToast("Registrasi berhasil! Silahkan login.");
-        window.location.hash = "#/login";
-      } catch (error) {
-        errorContainer.innerHTML = "<p>Terjadi kesalahan saat mendaftar</p>";
-        console.error(error);
-      } finally {
-        // Nonaktifkan loading state
-        submitButton.classList.remove("loading");
-        submitButton.disabled = false;
-      }
-    });
+  hideLoading() {
+    const submitButton = document.querySelector(".btn-submit");
+    submitButton.classList.remove("loading");
+    submitButton.disabled = false;
   }
 }

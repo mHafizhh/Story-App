@@ -11,32 +11,42 @@ export default class HomePage {
     const userInfo = isLoggedIn ? AuthService.getUserInfo() : null;
 
     return `
-      <section class="container">
-        <h1 class="page-title">Dicoding Story</h1>
-        
-        ${
-          isLoggedIn
-            ? `
-            <div class="welcome-card">
-              <h2>Selamat Datang, ${userInfo.name}!</h2>
-              <p>Berikut adalah cerita dari pengguna Dicoding.</p>
-            </div>
+      <a href="#mainContent" class="skip-link">Langsung ke konten utama</a>
 
-            <div id="story-container" class="story-container">
-              <div class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Mengambil data cerita...</p>
+      <main id="mainContent">
+        <section class="container" aria-labelledby="pageTitle">
+          <h1 id="pageTitle" class="page-title">Story App</h1>
+          
+          ${
+            isLoggedIn
+              ? `
+              <div class="welcome-card" role="region" aria-label="Informasi selamat datang">
+                <h2>Selamat Datang, ${userInfo.name}!</h2>
+                <p>Berikut adalah cerita dari para pengguna.</p>
               </div>
-            </div>
-          `
-            : `
-            <div class="welcome-card">
-              <h2>Selamat Datang di Dicoding Story</h2>
-              <p>Silahkan <a href="#/login">login</a> atau <a href="#/register">register</a> untuk melihat cerita dari pengguna Dicoding.</p>
-            </div>
-          `
-        }
-      </section>
+
+              <div 
+                id="story-container" 
+                class="story-container" 
+                role="feed" 
+                aria-busy="true"
+                aria-label="Daftar cerita pengguna"
+              >
+                <div class="loading-spinner" role="status">
+                  <div class="spinner" aria-hidden="true"></div>
+                  <p>Mengambil data cerita...</p>
+                </div>
+              </div>
+            `
+              : `
+              <div class="welcome-card" role="region" aria-label="Informasi selamat datang">
+                <h2>Selamat Datang di Story App</h2>
+                <p>Silahkan <a href="#/login" aria-la bel="Masuk ke akun">login</a> atau <a href="#/register" aria-label="Daftar akun baru">register</a> untuk melihat cerita dari pengguna Dicoding.</p>
+              </div>
+            `
+          }
+        </section>
+      </main>
     `;
   }
 
@@ -63,9 +73,10 @@ export default class HomePage {
     const storyContainer = document.getElementById("story-container");
     if (!storyContainer) return;
 
+    storyContainer.setAttribute("aria-busy", "true");
     storyContainer.innerHTML = `
-      <div class="loading-spinner">
-        <div class="spinner"></div>
+      <div class="loading-spinner" role="status">
+        <div class="spinner" aria-hidden="true"></div>
         <p>Mengambil data cerita...</p>
       </div>
     `;
@@ -74,9 +85,7 @@ export default class HomePage {
   hideLoading() {
     const storyContainer = document.getElementById("story-container");
     if (!storyContainer) return;
-    
-    // Jangan langsung mengosongkan container
-    // storyContainer.innerHTML = '';
+    storyContainer.setAttribute("aria-busy", "false");
   }
 
   showStories(stories) {
@@ -84,18 +93,18 @@ export default class HomePage {
     if (!storyContainer) return;
 
     if (stories.length === 0) {
-      storyContainer.innerHTML = '<div class="empty-state">Belum ada cerita yang tersedia. Jadilah yang pertama berbagi cerita!</div>';
+      storyContainer.innerHTML = '<div class="empty-state" role="status">Belum ada cerita yang tersedia. Jadilah yang pertama berbagi cerita!</div>';
       return;
     }
 
     const storiesHtml = stories.map((story) => createItemTemplate(story)).join("");
-    storyContainer.innerHTML = `<div class="story-list">${storiesHtml}</div>`;
+    storyContainer.innerHTML = `<div class="story-list" role="feed" aria-label="Daftar cerita">${storiesHtml}</div>`;
   }
 
   showError(message) {
     const storyContainer = document.getElementById("story-container");
     if (!storyContainer) return;
     
-    storyContainer.innerHTML = `<div class="error-message">${message}</div>`;
+    storyContainer.innerHTML = `<div class="error-message" role="alert">${message}</div>`;
   }
 }

@@ -2,10 +2,10 @@ export default class AboutPage {
   async render() {
     return `
       <section class="container about-container">
-        <h1 class="page-title">Tentang Dicoding Story</h1>
+        <h1 class="page-title">Tentang Story App</h1>
         
         <div class="about-content">
-          <p>Dicoding Story adalah platform berbagi cerita seputar Dicoding, mirip seperti post Instagram namun khusus untuk pengalaman belajar dan berkarya di Dicoding.</p>
+          <p>Story App adalah platform berbagi cerita seputar Dicoding, mirip seperti post Instagram namun khusus untuk pengalaman belajar dan berkarya di Dicoding.</p>
           
           <h2>Fitur Utama</h2>
           <ul>

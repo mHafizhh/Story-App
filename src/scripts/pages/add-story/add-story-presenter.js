@@ -10,7 +10,7 @@ export default class AddStoryPresenter {
   }
 
   async submitStory() {
-    const { description, photoPreview } = this.#view.getFormData();
+    const { description, photoPreview, lat, lon } = this.#view.getFormData();
 
     if (!description) {
       this.#view.showError("Deskripsi tidak boleh kosong");
@@ -30,6 +30,8 @@ export default class AddStoryPresenter {
       const result = await this.#model.addStory({
         description,
         photo,
+        lat,
+        lon,
       });
 
       if (result.error) {
@@ -38,6 +40,13 @@ export default class AddStoryPresenter {
       }
 
       showToast("Cerita berhasil ditambahkan!");
+      
+      // Pastikan resources dibersihkan sebelum navigasi
+      this.#view.destroy();
+      
+      // Tunggu sebentar untuk memastikan cleanup selesai
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       window.location.hash = "#/";
     } catch (error) {
       this.#view.showError("Terjadi kesalahan saat menambahkan cerita");
@@ -55,8 +64,11 @@ export default class AddStoryPresenter {
   }
 
   stopCamera() {
+    // Pastikan stream dibersihkan
     this.#view.stopCameraStream();
-    this.#view.updateCameraUI();
+    
+    // Update UI setelah stream dibersihkan
+    this.#view.updateCameraUI({ showCamera: false, showPreview: false });
   }
 
   capturePhoto() {
@@ -66,5 +78,18 @@ export default class AddStoryPresenter {
 
   retakePhoto() {
     this.#view.updateCameraUI({ showCamera: true });
+  }
+
+  handleFileSelect(event) {
+    const file = event.target.files[0];
+    
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.#view.showError('Mohon pilih file gambar yang valid');
+      return;
+    }
+
+    this.#view.handleFileSelect(file);
   }
 } 

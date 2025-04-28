@@ -9,6 +9,9 @@ export function createItemTemplate(story) {
         <p>${story.description}</p>
         <p class="created-date">${new Date(story.createdAt).toLocaleDateString()}</p>
         ${hasLocation ? `<p class="location">📍 Lokasi: ${story.lat}, ${story.lon}</p>` : ''}
+        <div class="story-card-actions">
+          <a href="#/story/${story.id}" class="btn-detail">Lihat Detail</a>
+        </div>
       </article>
     `;
 }

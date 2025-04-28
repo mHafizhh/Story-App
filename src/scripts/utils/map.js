@@ -140,4 +140,11 @@ export default class Map {
   addMapEventListener(eventName, callback) {
     this.#map.addEventListener(eventName, callback);
   }
+
+  destroy() {
+    if (this.#map) {
+      this.#map.remove();
+      this.#map = null;
+    }
+  }
 } 

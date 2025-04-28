@@ -102,3 +102,25 @@ export async function addStory({ description, photo, lat, lon }) {
     data: responseJson.story
   };
 }
+
+export async function getStoryDetail(id) {
+  const token = AuthService.getToken();
+
+  if (!token) {
+    throw new Error("Tidak ada token autentikasi");
+  }
+
+  const response = await fetch(`${ENDPOINTS.STORIES}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const responseJson = await response.json();
+
+  return {
+    error: !response.ok,
+    message: responseJson.message || "Terjadi kesalahan",
+    story: responseJson.story
+  };
+}

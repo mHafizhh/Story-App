@@ -121,3 +121,47 @@ export async function getStoryDetail(id) {
     story: responseJson.story
   };
 }
+
+export async function subscribePushNotification(subscription) {
+  const response = await fetch(`${CONFIG.BASE_URL}/notifications/subscribe`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${AuthService.getToken()}`,
+    },
+    body: JSON.stringify({
+      endpoint: subscription.endpoint,
+      keys: {
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+      },
+    }),
+  });
+
+  const responseJson = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseJson.message);
+  }
+
+  return responseJson;
+}
+
+export async function unsubscribePushNotification(endpoint) {
+  const response = await fetch(`${CONFIG.BASE_URL}/notifications/subscribe`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${AuthService.getToken()}`,
+    },
+    body: JSON.stringify({ endpoint }),
+  });
+
+  const responseJson = await response.json();
+
+  if (!response.ok) {
+    throw new Error(responseJson.message);
+  }
+
+  return responseJson;
+}

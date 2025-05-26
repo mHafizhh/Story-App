@@ -1,4 +1,6 @@
-export default class HomePresenter {
+import StoryIdb from '../../data/story-idb';
+
+class HomePresenter {
   #view = null;
   #model = null;
 
@@ -8,22 +10,29 @@ export default class HomePresenter {
   }
 
   async init() {
-    this.#view.showLoading();
     try {
+      this.#view.showLoading();
+      
       const response = await this.#model.getStories();
-
+      
       if (response.error) {
         this.#view.showError(response.message);
         return;
       }
 
-      const { listStory } = response;
-      this.#view.showStories(listStory);
+      if (response.listStory.length === 0) {
+        this.#view.showEmpty();
+        return;
+      }
+
+      this.#view.showStories(response.listStory);
     } catch (error) {
       console.error(error);
-      this.#view.showError(`Gagal memuat cerita. ${error.message}`);
+      this.#view.showError('Terjadi kesalahan saat memuat cerita');
     } finally {
       this.#view.hideLoading();
     }
   }
-} 
+}
+
+export default HomePresenter; 

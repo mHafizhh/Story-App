@@ -3,6 +3,7 @@ import { createItemTemplate } from "../templates/item-template";
 import HomePresenter from "./home-presenter";
 import * as StoryAPI from "../../data/api";
 import PushNotificationHelper from "../../utils/push-notification-helper";
+import StoryIdb from "../../data/story-idb";
 
 export default class HomePage {
   #presenter = null;
@@ -70,6 +71,38 @@ export default class HomePage {
       const storyContainer = document.getElementById("story-container");
       if (storyContainer) {
         await this.#presenter.init();
+        
+        // Tambahkan event listener untuk tombol simpan
+        storyContainer.addEventListener('click', async (event) => {
+          if (event.target.classList.contains('btn-save')) {
+            const storyId = event.target.dataset.id;
+            const story = await StoryAPI.getStoryById(storyId);
+            
+            if (!story.error) {
+              try {
+                await StoryIdb.saveStory(story.story);
+                // Tampilkan notifikasi berhasil
+                if ('Notification' in window) {
+                  const notifOptions = {
+                    body: 'Cerita berhasil disimpan dan dapat diakses secara offline',
+                    icon: '/icons/icon-192x192.png',
+                  };
+                  
+                  if (Notification.permission === 'granted') {
+                    new Notification('Story App', notifOptions);
+                  }
+                }
+                
+                // Update tampilan tombol
+                event.target.textContent = 'Tersimpan';
+                event.target.disabled = true;
+              } catch (error) {
+                console.error('Gagal menyimpan cerita:', error);
+                alert('Gagal menyimpan cerita. Silakan coba lagi.');
+              }
+            }
+          }
+        });
       } else {
         console.error("Story container tidak ditemukan");
       }

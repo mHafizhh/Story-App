@@ -1569,7 +1569,6 @@ textarea:focus {
   color: white;
   text-decoration: none;
   border-radius: 6px;
-  margin-top: 16px;
   transition: all 0.3s ease;
 }
 
@@ -1605,4 +1604,113 @@ textarea:focus {
 .btn-subscribe:focus {
   outline: 3px solid #45a049;
   outline-offset: 2px;
+}
+
+/* Story Actions */
+.story-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-save {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-save:hover {
+  background-color: #45a049;
+}
+
+.btn-save:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-save[disabled] {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Story Detail Actions */
+.story-detail-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.story-detail-actions .btn-save,
+.story-detail-actions .btn-back {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  justify-content: center;
+  text-decoration: none;
+  margin: 0;
+}
+
+.story-detail-actions .btn-save {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.story-detail-actions .btn-save:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.story-detail-actions .btn-save:active {
+  transform: translateY(0);
+}
+
+.story-detail-actions .btn-save.saved {
+  background-color: #dc3545;
+}
+
+.story-detail-actions .btn-save.saved:hover {
+  background-color: #c82333;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.story-detail-actions .btn-back {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.story-detail-actions .btn-back:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 119, 182, 0.2);
+}
+
+@media screen and (max-width: 576px) {
+  .story-detail-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .story-detail-actions .btn-save,
+  .story-detail-actions .btn-back {
+    width: 100%;
+  }
 }

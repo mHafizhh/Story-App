@@ -14,7 +14,7 @@ export default class StoryDetailPage {
     }
 
     return `
-      <a href="#mainContent" class="skip-link">Langsung ke konten utama</a>
+      <a href="#" class="skip-link">Langsung ke konten utama</a>
 
       <main id="mainContent">
         <section class="container story-detail-container" aria-labelledby="pageTitle">

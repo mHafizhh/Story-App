@@ -17,7 +17,6 @@ const routes = {
 
 export default routes;
 
-// Fungsi untuk mendapatkan halaman berdasarkan route
 export function getPage(route) {
   return routes[route] || new NotFoundPage();
 }

@@ -32,6 +32,6 @@ export default class AboutPage {
   }
 
   async afterRender() {
-    // afterRender implementation
+
   }
 }

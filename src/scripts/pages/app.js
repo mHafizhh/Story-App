@@ -19,7 +19,6 @@ class App {
     this.#navigationDrawer = navigationDrawer;
     this.#navList = navList;
 
-    // Mendapatkan elemen navigasi
     this.#loginLink = document.querySelector(".login-link");
     this.#registerLink = document.querySelector(".register-link");
     this.#userInfo = document.querySelector(".user-info");
@@ -27,6 +26,7 @@ class App {
 
     this.#setupDrawer();
     this.#setupAuthNavigation();
+    this.#setupSkipToContent();
   }
 
   #setupDrawer() {
@@ -50,18 +50,30 @@ class App {
   #setupAuthNavigation() {
     this.#updateNavigation();
 
-    // Setup logout handler
     this.#logoutButton.addEventListener("click", async (event) => {
       event.preventDefault();
       AuthService.destroyAuth();
       window.location.hash = "#/";
       this.#updateNavigation();
-      // Re-render page immediately setelah logout
       await this.renderPage();
     });
 
     window.addEventListener("hashchange", () => {
       this.#updateNavigation();
+    });
+  }
+
+  #setupSkipToContent() {
+    document.addEventListener('click', (event) => {
+      if (event.target.classList.contains('skip-link')) {
+        event.preventDefault();
+        const mainContent = document.querySelector('#mainContent');
+        if (mainContent) {
+          mainContent.tabIndex = -1;
+          mainContent.focus();
+          mainContent.scrollIntoView();
+        }
+      }
     });
   }
 
@@ -101,12 +113,10 @@ class App {
     const url = getActiveRoute();
     const page = getPage(url);
 
-    // Cleanup halaman sebelumnya jika ada
     if (this.#currentPage && typeof this.#currentPage.destroy === 'function') {
       this.#currentPage.destroy();
     }
 
-    // Simpan referensi halaman saat ini
     this.#currentPage = page;
 
     if (document.startViewTransition) {

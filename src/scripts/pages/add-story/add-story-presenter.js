@@ -15,12 +15,10 @@ export default class AddStoryPresenter {
     this.#model = model;
   }
 
-  // Getter untuk photos
   getPhotos() {
-    return [...this.#state.photos]; // Return copy untuk mencegah mutasi langsung
+    return [...this.#state.photos]; 
   }
 
-  // Form Handling
   async handleFormSubmit(formData) {
     if (!this.#validateForm(formData)) return;
     await this.submitStory(formData);
@@ -36,19 +34,16 @@ export default class AddStoryPresenter {
       return false;
     }
 
-    // Validasi tipe file
     if (!data.photo.type.startsWith('image/')) {
       this.#view.showError("File harus berupa gambar");
       return false;
     }
 
-    // Validasi ukuran file (1MB = 1024 * 1024 bytes)
     if (data.photo.size > 1024 * 1024) {
       this.#view.showError("Ukuran foto tidak boleh lebih dari 1MB");
       return false;
     }
 
-    // Validasi koordinat
     if (data.lat) {
       if (isNaN(data.lat) || data.lat < -90 || data.lat > 90) {
         this.#view.showError("Latitude tidak valid");
@@ -66,7 +61,6 @@ export default class AddStoryPresenter {
     return true;
   }
 
-  // Map Handling
   async showNewFormMap() {
     this.#view.showMapLoading();
     try {
@@ -110,7 +104,6 @@ export default class AddStoryPresenter {
     });
   }
 
-  // Camera Handling
   async handleCameraToggle() {
     if (!this.#state.isCameraOpen) {
       await this.startCamera();
@@ -158,7 +151,6 @@ export default class AddStoryPresenter {
     }
   }
 
-  // Photo Handling
   async handleFileSelect(file) {
     if (!file) return;
 
@@ -193,11 +185,9 @@ export default class AddStoryPresenter {
     this.#view.updatePhotoPreview(this.#state.photos);
   }
 
-  // Story Submission
   async submitStory(data) {
     this.#view.showSubmitLoadingButton();
     try {
-      // Format data sesuai API
       const storyData = {
         description: data.description,
         photo: data.photo,
@@ -216,12 +206,10 @@ export default class AddStoryPresenter {
     } catch (error) {
       console.error('submitStory: error:', error);
       
-      // Handle specific errors
       if (error.message.includes("Ukuran foto")) {
         this.#view.storeFailed(error.message);
       } else if (error.message.includes("token")) {
         this.#view.storeFailed("Sesi anda telah berakhir, silakan login kembali");
-        // Redirect ke halaman login
         window.location.hash = "#/login";
       } else {
         this.#view.storeFailed("Terjadi kesalahan saat menambahkan cerita");
@@ -231,7 +219,6 @@ export default class AddStoryPresenter {
     }
   }
 
-  // Cleanup
   destroy() {
     this.stopCamera();
     this.#state.photos.forEach(photo => {

@@ -2,6 +2,7 @@ import AuthService from "../../data/auth-service";
 import { createItemTemplate } from "../templates/item-template";
 import HomePresenter from "./home-presenter";
 import * as StoryAPI from "../../data/api";
+import PushNotificationHelper from "../../utils/push-notification-helper";
 
 export default class HomePage {
   #presenter = null;
@@ -11,7 +12,7 @@ export default class HomePage {
     const userInfo = isLoggedIn ? AuthService.getUserInfo() : null;
 
     return `
-      <a href="#mainContent" class="skip-link">Langsung ke konten utama</a>
+      <a href="#" class="skip-link">Langsung ke konten utama</a>
 
       <main id="mainContent">
         <section class="container" aria-labelledby="pageTitle">
@@ -23,6 +24,13 @@ export default class HomePage {
               <div class="welcome-card" role="region" aria-label="Informasi selamat datang">
                 <h2>Selamat Datang, ${userInfo.name}!</h2>
                 <p>Berikut adalah cerita dari para pengguna.</p>
+                <button 
+                  id="subscribeButton" 
+                  class="btn-subscribe"
+                  aria-label="Tombol berlangganan notifikasi"
+                >
+                  Subscribe Push Notification
+                </button>
               </div>
 
               <div 
@@ -41,7 +49,7 @@ export default class HomePage {
               : `
               <div class="welcome-card" role="region" aria-label="Informasi selamat datang">
                 <h2>Selamat Datang di Story App</h2>
-                <p>Silahkan <a href="#/login" aria-la bel="Masuk ke akun">login</a> atau <a href="#/register" aria-label="Daftar akun baru">register</a> untuk melihat cerita dari pengguna Dicoding.</p>
+                <p>Silahkan <a href="#/login" aria-label="Masuk ke akun">login</a> atau <a href="#/register" aria-label="Daftar akun baru">register</a> untuk melihat cerita dari pengguna Dicoding.</p>
               </div>
             `
           }
@@ -59,12 +67,17 @@ export default class HomePage {
         model: StoryAPI,
       });
       
-      // Pastikan container sudah ada sebelum memanggil init
       const storyContainer = document.getElementById("story-container");
       if (storyContainer) {
         await this.#presenter.init();
       } else {
         console.error("Story container tidak ditemukan");
+      }
+
+      // Initialize Push Notification
+      const subscribeButton = document.getElementById('subscribeButton');
+      if (subscribeButton) {
+        await PushNotificationHelper.init({ subscribeButton });
       }
     }
   }

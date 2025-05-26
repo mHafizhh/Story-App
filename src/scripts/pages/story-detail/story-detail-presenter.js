@@ -76,10 +76,8 @@ export default class StoryDetailPresenter {
 
   async #initializeMap(story) {
     try {
-      // Tunggu sebentar untuk memastikan DOM sudah dirender
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Destroy map yang ada jika sudah ada
       if (this.#map) {
         this.#map.destroy();
         this.#map = null;

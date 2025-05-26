@@ -24,7 +24,7 @@ export default class AddStoryPage {
 
     return `
       <!-- Skip to content -->
-      <a href="#mainContent" class="skip-link">Langsung ke konten utama</a>
+      <a href="#" class="skip-link">Langsung ke konten utama</a>
 
       <main id="mainContent">
         <section class="container auth-container" aria-labelledby="pageTitle">

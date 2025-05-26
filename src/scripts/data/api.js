@@ -67,7 +67,6 @@ export async function addStory({ description, photo, lat, lon }) {
     throw new Error("Tidak ada token autentikasi");
   }
 
-  // Validasi ukuran file (max 1MB)
   if (photo.size > 1024 * 1024) {
     throw new Error("Ukuran foto tidak boleh lebih dari 1MB");
   }
@@ -76,7 +75,6 @@ export async function addStory({ description, photo, lat, lon }) {
   formData.append("description", description);
   formData.append("photo", photo);
   
-  // Append lat & lon jika ada
   if (typeof lat === 'number' && !isNaN(lat)) {
     formData.append("lat", lat);
   }
@@ -95,7 +93,6 @@ export async function addStory({ description, photo, lat, lon }) {
 
   const responseJson = await response.json();
 
-  // Format response agar konsisten
   return {
     error: !response.ok,
     message: responseJson.message || "Terjadi kesalahan",

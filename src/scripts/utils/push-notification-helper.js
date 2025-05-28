@@ -20,9 +20,12 @@ const PushNotificationHelper = {
 
   async _registerServiceWorker() {
     try {
-      await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.register('./sw.js');
+      console.log('Service Worker berhasil didaftarkan:', registration);
+      return registration;
     } catch (error) {
-      console.log('Failed to register service worker:', error);
+      console.error('Service Worker gagal didaftarkan:', error);
+      throw error;
     }
   },
 
@@ -105,8 +108,8 @@ const PushNotificationHelper = {
         title: 'Berhasil Subscribe',
         options: {
           body: 'Anda telah berhasil subscribe push notification!',
-          icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-72x72.png',
+          icon: './icons/icon-192x192.png',
+          badge: './icons/icon-72x72.png',
           vibrate: [100, 50, 100],
         },
       });
@@ -131,8 +134,8 @@ const PushNotificationHelper = {
         title: 'Berhasil Unsubscribe',
         options: {
           body: 'Anda telah berhenti berlangganan push notification',
-          icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-72x72.png',
+          icon: './icons/icon-192x192.png',
+          badge: './icons/icon-72x72.png',
           vibrate: [100, 50, 100],
         },
       });

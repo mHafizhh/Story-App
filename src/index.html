@@ -3,10 +3,16 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="/favicon.png" />
-    <title>App</title>
+    <meta name="theme-color" content="#00A2ED"/>
+    <meta name="description" content="Aplikasi berbagi cerita dengan fitur offline"/>
+    
+    <link rel="shortcut icon" href="./favicon.png" />
+    <link rel="manifest" href="./app.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png"/>
+    
+    <title>Story App</title>
 
-    <script type="module" src="/scripts/index.js"></script>
+    <script type="module" src="./scripts/index.js"></script>
   </head>
   <body>
     <header>
@@ -22,13 +28,14 @@
               <a href="#/register" class="register-link">Register</a>
               <div class="user-info" style="display: none;">
                 <a href="#/add" class="nav-link">Tambah Cerita</a>
+                <a href="#/saved" class="nav-link">Cerita Tersimpan</a>
                 <a href="#" id="logout-button" class="nav-link">Logout</a>
               </div>
             </li>
           </ul>
         </nav>
 
-        <button id="drawer-button" class="drawer-button">☰</button>
+        <button id="drawer-button" class="drawer-button" aria-label="Toggle navigation">☰</button>
       </div>
     </header>
 
